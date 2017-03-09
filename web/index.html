@@ -1,0 +1,885 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="bitcoin orderbook orders">
+    <meta name="keywords" content="bitcoin exchanges orderbook">
+    <meta name="author" content="https://www.twitter.com/romanix">
+
+    <title>Orderbook.info - Realtime aggregated orderbooks from main bitcoin exchanges.</title>
+
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.min.css">
+
+  
+    <!-- Just for debugging purposes. Don't actually copy this line! -->
+    <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]-->
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    
+    <style type="text/css">
+
+          /* Sticky footer styles -------------------------------------------------- */
+          html {
+            position: relative;
+            min-height: 100%;
+          }
+          body {
+            /* Margin bottom by footer height */
+            margin-bottom: 60px;
+          }
+          #footer {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            /* Set the fixed height of the footer here */
+            height: 60px;
+            background-color: #f5f5f5;
+          }
+
+          #footer > .container {
+            padding-right: 15px;
+            padding-left: 15px;
+         }
+
+         .whatyou {
+            background-color: #fcf7f2; 
+         }
+
+        /*---  Eof footer -- */
+
+
+        .filtercontainer {
+           margin-top: 65px; 
+        }
+
+        .tablecontainer {
+
+        }
+
+        /*  Orderbook table  classes */
+        
+        .bid {
+              text-align: right;
+              /*width: 150px;*/
+        }
+        .ask {
+              text-align: left;
+              /*width: 150px;*/
+        }
+        .diff {
+            text-align: center;
+           /* width: 200px;*/
+        }
+
+       .tbheaderleft  p {
+            padding: 5px;
+            text-align: right;
+            font-weight: bold;
+        }
+
+        .tbheaderdiff p {
+
+            padding: 5px;
+            font-weight: bold; 
+            text-align: center;  
+            background-color: #F5F5F5;
+        }
+
+        .tbheaderright p {
+
+            padding: 5px;
+            font-weight: bold;            
+            text-align: left;          
+        }
+
+        .tbseccondheader p {
+            padding: 5px;
+            font-weight: bold;                 
+        }
+
+        .sectbheaderdiff p {
+            padding: 5px;
+            font-weight: bold;  
+            text-align: center;                  
+        }
+        
+         .logo {
+           
+            background: url(img/logo1.png) no-repeat left bottom;
+            width: 330px;
+           
+        }
+
+        /* orderbook table colors */
+
+        .tr_bitstamp {
+              color: #006400;
+        }
+
+        .tr_btc-e {
+              color: #8B0000;
+        }
+
+        .tr_coinsetter{
+            color: #00008B;
+        }
+
+        .tr_Kraken {
+            color:  #800080;
+        }
+
+        .tr_Bitfinex {
+
+            color: #DE954B;
+        }
+
+        .tr_itBit {
+
+            color: #f17395;
+        }
+
+        .tr_ANX {
+
+            color: #50D9E1;
+        }
+
+        .tr_hitbtc {
+
+           color:  #465469;
+        }
+
+        .tr_cryptonit {
+
+             color:  #5e7c7c;
+        }
+
+        .tr_okcoin {
+            color:  #0096E0;
+        }
+
+        .tr_lakebtc {
+            color:  #333399;
+        }
+
+        .tr_coinbase {
+            
+            color: #F2100C;
+        }
+
+        .div_spread {
+            padding-left: 1px !important;
+            padding-right: 1px !important;
+        }
+
+        .td_spread {
+            text-align: center;
+        }
+
+        .cents {
+             font-size: 0.8em;
+             position: relative;
+             bottom: 0.25em;
+        }
+
+    </style>
+
+  </head>
+
+  <body>
+
+
+        <!-- Nav Bar -->
+        <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+              </button>
+              <a class="navbar-brand logo pull-left" href="#"></a> 
+            </div>
+
+            
+            <div class="navbar-collapse collapse pull-right">
+              <ul class="nav navbar-nav">
+              <p class="navbar-text"><strong>Realtime aggregated orderbooks from main bitcoin exchanges.</strong> </p> 
+                <!--                
+                      <li class="active"><a href="#">Home</a></li>
+                      <li><a href="#about">About</a></li>            
+                      </ul>
+                      <ul class="nav navbar-nav navbar-right">
+                      <li><a href="#">Contact</a></li>  
+                -->
+              </ul>
+            </div>
+          </div>
+        </div>
+        <!-- Eof Nav Bar -->
+
+ 
+        <!-- Filter Container -->
+        <form name="filterform" id="filterform" class="container filtercontainer"> 
+
+                <!-- Socket Alert Box -->
+                 <div id="connectionalert" class="alert alert-danger fade in" style="display:none;">
+                  <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                  <strong> Connection Error !!! </strong>  &nbsp;&nbsp;  Please chek your internet connection 
+                </div>
+                <!-- Socket Alert Box -->
+
+
+                <ul class="nav nav-pills">
+<!--
+                  <li id="hidefilters" class="enabled"><a href="#"><strong>Use filters</strong></a></li>
+                  <li id="xxx" class="enabled" data-toggle="modal" data-target="#explanationModal"><a href="#"><strong>Explanation</strong></a></li>
+-->
+                </ul> 
+
+
+               <div class="row" id="filters" style="background-color: #fcfcfc; padding-top: 20px;">
+
+                    <div class="col-md-3">
+                      <select class="form-control" name="filterByBitcoinSize">
+                          <option value="0">all bitcoin order sizes</option>
+                          <option value="0.2"> only orders > 0.2 bitcoin</option>
+                          <option value="1.00">only orders >= 1 bitcoin</option>
+                          <option value="10.00">only big orders >= 10 bitcoin</option>
+                      </select>
+                   </div>
+
+                   <div class="col-md-3">
+                      <select class="form-control" name="filterByUsdSize">
+                        <option value="0"> all USD order sizes</option>
+                        <option value="100.00"> only orders >= $ 100</option>
+                        <option value="1000.00"> only orders >= $ 1000</option>
+                        <option value="10000.00"> only big orders >= $ 10 000</option>                
+                        <option value="100000"> only big orders >= $ 100,000</option>                
+                      </select>
+                    </div>            
+
+                    <div class="col-md-3">            
+                      <select  class="form-control" name="filterByLocation">                        
+                            <option value="all">Exchanges from any region</option>  
+                            <option value="Kraken|coinsetter|ATLAS|coinbase|gemini">US-based exchanges</option>  
+                            <option value="bitstamp|btc-e|localbitcoins|hitbtc|cryptonit">Europe-based exchanges</option>
+                            <option value="Bitfinex|itBit|ANX|okcoin">Asia-based exchanges</option> 
+                      </select>
+
+                    </div>
+
+                    <div class="col-md-3">            
+                      <select  class="form-control" name="filterByAuditStatus">
+                        <option value="all">All exchanges</option> <!-- bitstamp|btc-e|coinsetter|kraken|bitfinex -->
+                        <option value="bitstamp|Kraken|Bitfinex">Audited within last year</option> 
+                      </select>
+                    </div>
+                      
+               </div>
+
+              <div class="row" id="filters1" style="background-color: #fcfcfc;">
+                <div class="col-md-12" style="padding-top: 15px; padding-bottom: 15px;">
+                        
+                         <div class="pull-left">                
+                              <!-- <label> Show orders from: &nbsp;&nbsp;  </label> -->
+                              <label> Filters : &nbsp;&nbsp;  </label>
+
+                              <label class="checkbox-inline">
+                                <input type="checkbox" value="bitstamp" checked> <span class="tr_bitstamp"> Bitstamp  </span>
+                              </label>
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="btc-e" checked><span class="tr_btc-e"> Btc-e </span>  
+                              </label>
+                              <label class="checkbox-inline">
+                                <input type="checkbox" value="coinsetter"><span class="tr_coinsetter"> Coinsetter </span>
+                              </label>  
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="Kraken" checked><span class="tr_Kraken"> Kraken  </span>
+                              </label>
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="Bitfinex" checked><span class="tr_Bitfinex"> Bitfinex </span>
+                              </label>
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="itBit" checked><span class="tr_itBit"> itBit </span>
+                              </label>
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="ANX" checked><span class="tr_ANX"> ANX </span>
+                              </label>
+                              <!--
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="hitbtc" disabled ><span class="tr_hitbtc"><strike> Hitbtc </strike> </span>
+                              </label>
+                              -->
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="okcoin" checked><span class="tr_okcoin"> Okcoin </span>
+                              </label>
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="lakebtc" checked><span class="tr_lakebtc"> LakeBTC </span>
+                              </label>
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="coinbase" checked><span class="tr_coinbase"> Coinbase </span>
+                              </label>
+
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="livecoin" checked><span class="tr_livecoin"> Livecoin </span>
+                              </label>
+
+                              <label class="checkbox-inline">
+                                <input type="checkbox"  value="gemini" checked><span class="tr_gemini"> Gemini </span>
+                              </label>
+
+                         
+                              <!-- 
+                                 <label class="checkbox-inline">
+                                  <input type="checkbox"  value="bitex" checked><span class="tr_bitex"> bitex </span>
+                                </label>
+                              -->
+              
+                               &nbsp;&nbsp;&nbsp; <button type="button" id="clearfiletr" class="btn btn-default">Clear Filter</button>
+                         </div>
+
+                        <!-- 
+                          <div class="pull-right">                         
+                                <button type="button" onclick="stopstream(this);" class="btn btn-default">
+                                      <span name="statustIcon" class="glyphicon glyphicon-stop"></span> 
+                                      <span name="statustext"> Pause Stream </span>
+                                </button>                           
+                          </div>
+                        -->
+
+                </div>         
+              </div> <!-- Filters 2 row -->
+            
+            <br>
+
+        </form> <!-- Eof Filter container -->
+
+
+      <!-- Table Container -->
+      <div class="container tablecontainer" id="div_orderbook_table">     
+
+              <div align="center">
+                <img src="img/loader.gif"> </img>
+              </div>
+
+      </div> <!-- /tablecontainer container -->
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="explanationModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">orderbook.info explanation</h4>
+          </div>
+          <div class="modal-body">
+            <p><strong>Realtime aggregation of bitcoin exchange orderbooks.</strong></p>
+            <ul>
+              <li>Negative spread values indicate arbitrage opportunities.</li>
+              <li>Spread is shown as USD value per 1 bitcoin.</li>
+              <li>Often you can buy cheap at BTC-e and sell high at Bitstamp.net. But don't forget exchange fees!</li>
+              <li>The orderbooks of the exchanges are way deeper than shown in this application</li>
+              <li>Some BTC-e orders appear and disappear although they are not close to the market.</li>
+              <li>BTC-e orders in BTC-e API can be diverge from what you see in the BTC-e Web GUI.</li>
+              <li>Coinsetter seems to replicate Bitstamp orders. Use filters to check this out.</li>
+              <li>Often order sizes are very small. Use filters to view only bigger orders.</li>
+              <li>There is no real market maker.</li>
+            </ul>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+
+          </div>
+        </div>
+      </div>
+    </div> 
+    <!-- Modal -->
+
+
+    <!-- Footer -->    
+    <div id="footer">
+      <div class="container">
+
+        <div class="col-md-6">
+        <p class="text-muted"><p>concept and copyright (c) 2014 by  <a target="_blank" href="http://twitter.com/romanix">@romanix</a>   | developer <a target="_blank" href="https://twitter.com/achiko75">@achiko75</a>  </p>
+        </div>
+
+        <div class="col-md-6">
+          <p>
+            <!-- AddThis Button BEGIN -->
+            <div class="addthis_toolbox addthis_default_style addthis_16x16_style">
+              <a class="addthis_button_facebook"></a>
+              <a class="addthis_button_twitter"></a>
+              <a class="addthis_button_linkedin"></a>
+              <a class="addthis_button_google_plusone_share"></a>
+              <a class="addthis_button_baidu"></a>            
+            </div>
+            <script type="text/javascript">var addthis_config = {"data_track_addressbar":true};</script>
+            <script type="text/javascript" src="//s7.addthis.com/js/300/addthis_widget.js#pubid=ra-53676e0648cced44"></script>
+            <!-- AddThis Button END -->
+          </p>
+        </div>
+
+      </div>
+    </div>
+
+
+<style type="text/css">
+
+
+@media only screen and (max-width: 800px) {
+    
+    .tableheader0 { display: none; }
+    
+    .tableheader2  th:nth-child(2) { display: none; background-color: red;  } 
+    #unseen table td:nth-child(2) { display: none; background-color: red;  }
+    
+    .tableheader2 th:nth-child(8) { display: none; background-color: red;  } 
+    #unseen table td:nth-child(8) { display: none; background-color: red;  }
+}
+ 
+@media only screen and (max-width: 640px) {
+
+      /*  
+        #unseen table td:nth-child(1),
+        #unseen table th:nth-child(1),
+        
+        #unseen table td:nth-child(7),
+        #unseen table th:nth-child(7),
+
+        #unseen table td:nth-child(7),
+        #unseen table th:nth-child(7){display: none;}
+    */
+}
+
+
+ 
+</style>
+
+
+
+<script type="text/template" id="orderbook-table-template">
+
+    <!--   
+      <div class="row">
+        <div class="col-xs-5 whatyou">
+           <div style="padding: 15px;"><strong>  What you get if you sell bitcoins [list of  buy orders] </strong> </div>
+        </div>
+        <div class="col-xs-2">
+              <div style="text-align: center; padding-top: 15px;"> <strong>  Difference  </strong> </div>
+        </div>
+        <div class="col-xs-5 whatyou">
+          <div style="padding: 15px;"><strong> What you pay if you buy bitcoins [list of other sell orders]</strong></div>
+        </div>
+      </div>
+    </div>
+  -->
+
+  
+
+  <div class="row" id="unseen">
+
+    <div class="col-md-12" style="padding-left: 1px; padding-right: 1px">
+
+
+      <div class="table-responsive">
+
+              <table class="table table-condensed">
+                    
+                    <tr class="tableheader0">
+                        <th colspan="4" class="whatyou"> <span> What you get if you sell bitcoins [list of  buy orders] </span> </th>
+                        <th style="text-align: center;"> Difference </th>
+                        <th colspan="4" class="whatyou"> What you pay if you buy bitcoins [list of other sell orders] </th>
+                    </tr>
+               
+                    <tr class="tableheader2">
+                            <th> Exchange </th>
+                            <th> $ Order size </th>                
+                            <th style="text-align: center;"> ฿ Order size   </th>
+                            <th style="text-align: right;"> Bid price </th>
+                            
+                            <th style="text-align: center;"> Spread  </th>              
+
+                            <th style="text-align: left;">  Ask price </th>
+                            <th style="text-align: center;">  ฿ Order size </th>              
+                            <th>  $ Order size </th>
+                            <th>  Exchange  </th>
+                    </tr>
+
+                    <% _.each(data, function(item){ %>
+                          
+                          <tr> 
+                              <td class="tr_<%= item.BidExch %>"><%=  item.BidExch === null ? '-' : item.BidExch %> </td>
+                              <td><%= item.BidOrderValue === null ? '-' : formatBitcoinOdrer(item.BidOrderValue, '$') %></td>
+                              <td style="text-align: center;"><%= item.BidAmt === null ? '-' :  formatBitcoin(item.BidAmt, '') %> </td>
+                              <td style="text-align: right;"><%= item.Bid === null ? '-' : format2(item.Bid, '$') %> </td> 
+                              
+                              <td class="td_spread"> 
+                                    <% if(item.Spread !== null) { %>  
+                                      <%= item.Spread > 0.0  ? '<span>' + format2(item.Spread, '$') + '</span>'  :      '<strong>' + format2(item.Spread, '$') + '</strong>'  %>
+                                    <% } %>
+                              </td>
+
+                              <td style="text-align: left;"><%=  item.AskAsk === null ?  '-' :  format2(item.AskAsk, '$') %> </td>
+                              <td style="text-align: center;"><%= item.AskAmt === null ? '-' :  formatBitcoin(item.AskAmt, '') %> </td>
+                              <td><%= item.AskOrderValue === null ? '-' : formatBitcoinOdrer(item.AskOrderValue, '$') %> </td>
+                              <td class="tr_<%= item.AskExch %>"><%= item.AskExch === null ? '-' : item.AskExch %> </td>
+
+                          </tr>
+
+                    <% }); %>        
+              </table>
+
+         </div>
+       </div>
+    </div>
+
+</div>
+
+</script>
+
+
+</body>
+
+
+    <!-- <script  src="//cdnjs.cloudflare.com/ajax/libs/zepto/1.0/zepto.min.js" type="text/javascript"></script>  -->
+    <!-- 
+      <script  src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.0/jquery.js" type="text/javascript"></script>
+      <script  src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.0/underscore-min.js"  type="text/javascript"></script> 
+      <script  src="//cdnjs.cloudflare.com/ajax/libs/backbone.js/1.0.0/backbone-min.js"    type="text/javascript"></script>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+      <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"  type="text/javascript"></script>    
+    -->
+
+    <script src="js/jquery.min.js"></script> 
+    <script src="js/Backbone/underscore.js" type="text/javascript"></script>
+    <script src="js/Backbone/backbone.js"  type="text/javascript"></script>
+    <script src="js/moment.min.js" type="text/javascript"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/socket.io/0.9.16/socket.io.min.js"></script>
+
+    <script src="bootstrap/js/bootstrap.min.js" type="text/javascript"></script>    
+    <script src="bootstrap/js/tooltip.js" type="text/javascript"></script>    
+    <script src="bootstrap/js/alert.js" type="text/javascript"></script>    
+
+    <!-- Utils -->
+    <script src="js/lib/utils.js"  type="text/javascript"></script>
+
+    
+    <script type="text/javascript">
+
+        $(document).ready(function() {
+
+            $("#hidefilters").click(function(){
+              $("#filters").toggle("slow");
+            });
+
+            //-- Intialise Orderbook collection
+            var OrderBookCollection = Backbone.Collection.extend({
+                url: '/orderbook'
+            });
+
+              //--  Orderbook Table View
+            var OrderBookView = Backbone.View.extend({
+                el: '#div_orderbook_table'
+                ,render: function(data) {
+                          var orderbooktemplate = _.template($('#orderbook-table-template').html(), { data: data });
+                          this.$el.html(orderbooktemplate);                              
+                }
+            });
+
+
+            var Router = Backbone.Router.extend({
+                routes: {
+                    '': 'home'                                     
+                }
+            });
+
+
+              var router = new Router();
+              var orderbook = new OrderBookView();
+             
+
+            router.on('route:home', function () {               
+                  
+            });
+                          
+            Backbone.history.start();
+
+            //-- Scoket Part ! --//
+            var socket = io.connect('http://localhost:5000');
+            //var socket = io.connect('http://www.orderbook.info');
+ 
+                socket.on('echo', function (bids, asks) {                       
+                    //-- orderbook.render(data);
+                    if(!streamStopped) {
+                         AgreGateData(bids, asks);
+                     }
+                  });
+
+                  socket.on('connect', function() {
+                      console.log("socket  connected");   
+                      $('#connectionalert').hide();
+                  });
+
+                  socket.on('disconnect', function () {
+
+                      console.log("socket  disconnected"); 
+                       $('#connectionalert').show();
+
+                  });
+
+
+               //-- Stop Stream Function Just  for  testing
+               var streamStopped = false;
+               stopstream = function(obj){
+                    
+                    streamStopped = (streamStopped) ? false : true;                    
+
+                    if(streamStopped){
+                        $('[name=statustext]').text('Resume Stream');
+                        $('[name=statustIcon]').attr('class','glyphicon glyphicon-play');
+                    }else{
+                        $('[name=statustIcon]').attr('class','glyphicon glyphicon-stop');
+                        $('[name=statustext]').text('Pause Stream');
+                    }
+               }
+
+             
+
+               var allbids = [];
+               var allasks = [];            
+
+               AgreGateData = function (bids, asks) {
+
+                    //--  1. Find curent exchane exits in Data Object 
+                    var ticker =  moment();
+
+                    _.each(allbids, function(item, index){                          
+                          if(item.ex === bids.ex) {
+                                //--  2. If exists remove data
+                                allbids.splice(index, 1);
+                          }
+                    });
+
+                     _.each(allasks, function(item, index){                                                    
+                          if(item.ex === asks.ex) {
+                                //--  2. If exists remove this  data
+                                allasks.splice(index, 1);
+                          }
+                    });
+
+                    //--  3. Add new Data 
+                    allbids.push(bids);
+                    allasks.push(asks);
+
+                    var databids = [];
+                    var dataasks = [];
+                    
+                    var flat = [];
+                    for(var a = 0; a < allbids.length; a++) {
+                          databids.push(allbids[a].data);
+                          dataasks.push(allasks[a].data);
+                    }
+                    
+                    //-- Merge New Data
+                    var mergedbids = _.flatten(databids);
+                    var mergedasks = _.flatten(dataasks);
+
+                  
+                    //-- 4. Sort Merged Data                    
+                    //-- sortBy() based on multiple attributes
+                    var sortedbids  =  _(mergedbids).chain().sortBy(function(obj) { return obj.ex; }).sortBy(function(obj){  return obj.bid * -1;  }).value() ; 
+                    var sortedasks  =  _(mergedasks).chain().sortBy(function(obj) { return obj.ex; }).sortBy(function(obj){ return obj.ask; }).value();  
+
+                   
+                    //-- calculate BTC/USD rate =  (best bid price + best ask price) / 2
+                    //-- average rate = ( bid + ask) / 2
+                    //-- order value in USD = amount in BTC x average rate
+                    var averagePrice = (_.first(sortedbids).bid + _.first(sortedasks).ask)/2;
+                    
+                      _.each(sortedbids, function(item, idx){
+                            item.ordervalue = item.amt * averagePrice;
+                            sortedasks[idx].ordervalue = sortedasks[idx].amt * averagePrice;
+                      });
+                
+
+                      //-- 5. Filter Data                  
+                      if(filterObject.filterByBitcoinSize !== 0) {
+
+                          sortedbids = _.filter( sortedbids, function(obj){ return obj.amt >  filterObject.filterByBitcoinSize ; });
+                          sortedasks = _.filter( sortedasks, function(obj){ return obj.amt >  filterObject.filterByBitcoinSize ; });
+                      }
+
+                      if(filterObject.filterByUsdSize !== 0){
+
+                          sortedbids = _.filter( sortedbids, function(obj){ return obj.ordervalue >  filterObject.filterByUsdSize ; });
+                          sortedasks = _.filter( sortedasks, function(obj){ return obj.ordervalue >  filterObject.filterByUsdSize ; });
+
+                      }
+
+                                        
+                    //-- Filter Exchanges !!! ChekBoxes
+                    _.each(filterObject.excludeExchanges, function(ex){
+
+                        sortedbids = _.filter( sortedbids, function(obj){ return obj.ex !=  ex; });
+                        sortedasks = _.filter( sortedasks, function(obj){ return obj.ex !=  ex; });
+
+                    });
+
+
+                    //-- Filter by Locations 
+                    if(filterObject.filterByLocation[0] !== 'all') { 
+
+                         var _tempBids = [];
+                         var _tempAsks = [];
+
+                        _.each(filterObject.filterByLocation, function(exchangename){
+
+                              var tempBids =  _.filter( sortedbids, function(obj){ return obj.ex ==  exchangename ; });
+                              _tempBids.push(tempBids);
+                              var tempAsks = _.filter( sortedasks, function(obj){ return obj.ex ==  exchangename ; });
+                              _tempAsks.push(tempAsks);
+                        });
+
+                        //console.log('Temp Bids: ', _.flatten(_tempBids));
+
+                        sortedbids = _.flatten(_tempBids);
+                        sortedasks = _.flatten(_tempAsks);
+
+                    }
+
+                    //-- Filter By Audit Status 
+                    if(filterObject.filterByAuditStatus[0] !== 'all') { 
+
+                         var _tempBids = [];
+                         var _tempAsks = [];
+
+                        _.each(filterObject.filterByAuditStatus, function(exchangename){
+
+                              var tempBids =  _.filter( sortedbids, function(obj){ return obj.ex ==  exchangename ; });
+                              _tempBids.push(tempBids);
+                              var tempAsks = _.filter( sortedasks, function(obj){ return obj.ex ==  exchangename ; });
+                              _tempAsks.push(tempAsks);
+                        });
+
+                        //console.log('Temp Bids: ', _.flatten(_tempBids));
+
+                        sortedbids = _.flatten(_tempBids);
+                        sortedasks = _.flatten(_tempAsks);
+                       
+                    }
+
+
+                    //-- Resort  Data
+                    finalBids   =   _(sortedbids).chain().sortBy(function(obj) { return obj.ex; }).sortBy(function(obj){  return obj.bid * -1;  }).value() ; 
+                    finalAsks  =    _(sortedasks).chain().sortBy(function(obj) { return obj.ex; }).sortBy(function(obj){ return obj.ask; }).value();  
+
+
+
+                    //-- Merge Bids  Asks  & calculate Spread
+                    var bidsarrlength   = finalBids.length;
+                    var asksarraylength = finalAsks.length;
+                   
+
+                    var spreaddata =  [];
+                    var _FinalData =  [];
+
+                    for(var a = 0; a < Math.max(bidsarrlength, asksarraylength); a++){
+
+                          var line = { 
+                                        BidExch:       _.isUndefined(finalBids[a]) ? null : finalBids[a].ex, 
+                                        BidAmt:        _.isUndefined(finalBids[a]) ? null : finalBids[a].amt, 
+                                        Bid:           _.isUndefined(finalBids[a]) ? null : finalBids[a].bid,                                                      
+                                        BidOrderValue: _.isUndefined(finalBids[a]) ? null : finalBids[a].ordervalue,
+                                        
+                                        AskExch:      _.isUndefined(finalAsks[a])  ? '-' : finalAsks[a].ex ,
+                                        AskAmt:       _.isUndefined(finalAsks[a]) ?  null  : finalAsks[a].amt,
+                                        AskAsk:       _.isUndefined(finalAsks[a]) ? null : finalAsks[a].ask,                                                      
+                                        AskOrderValue:  _.isUndefined(finalAsks[a]) ? null : finalAsks[a].ordervalue,
+                                        //Spread: _.isUndefined(sortedasks[a]) ?  null :  sortedasks[a].ask - sortedbids[a].bid
+                                        Spread: null                                                                
+                                }
+
+                          var _Spread = null;                              
+                          if(!_.isUndefined(sortedasks[a]) && !_.isUndefined(sortedbids[a])) {
+                              _Spread = sortedasks[a].ask - sortedbids[a].bid;
+                          }
+
+                          line.Spread = _Spread;
+                          _FinalData.push(line);
+                    } 
+
+                    orderbook.render(_FinalData);              
+               }
+
+                //-- Filter Confog Object                  
+                var filterObject  =  {
+
+                      filterByBitcoinSize: 0,
+                      filterByUsdSize:     0,                      
+                      filterByTime: 0,
+                      excludeExchanges: ["coinsetter"],
+                      filterByLocation:  ['all'], 
+                      filterByAuditStatus: ['all']                     
+                };
+
+                //-- Bind Filters Select
+                $('select').bind('change', function(e){ 
+                    var filterAttrName  = $(e.currentTarget).attr('name');
+                    if(filterAttrName  === 'filterByLocation' || filterAttrName === 'filterByAuditStatus' ){
+                        var filterConfig = $(e.currentTarget).val().split('|');
+                        filterObject[$(e.currentTarget).attr('name')] =  filterConfig;
+                        return;                                             
+                    } 
+                    filterObject[$(e.currentTarget).attr('name')] = $(e.currentTarget).val();
+                });
+
+                //-- Bind checkbox filter events 
+                $('#filters1 :checkbox').click(function() {                      
+                      var $this = $(this);
+                      var  index =  filterObject.excludeExchanges.indexOf(this.value);                                            
+                      if(index == -1){
+                          filterObject.excludeExchanges.push(this.value);
+                      }else{                         
+                          filterObject.excludeExchanges.splice(index, 1);
+                      }
+                });
+
+
+                // --Clear Filter !
+                $('#clearfiletr').click(function() {                        
+                    $('#filterform')[0].reset();
+                        
+                        filterObject  =  {
+                            filterByBitcoinSize: 0,
+                            filterByUsdSize:     0,                      
+                            filterByTime: 0,
+                            excludeExchanges: ["coinsetter"],
+                            filterByLocation:  ['all'], 
+                            filterByAuditStatus: ['all']                     
+                        };
+                });
+        });
+</script>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-50174010-1', 'orderbook.info');
+  ga('send', 'pageview');
+
+</script>    
+</html>
